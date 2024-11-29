@@ -1,0 +1,154 @@
+
+import csv
+
+
+def printMenu():
+    print('''
+          Customer and Sales System\n
+          1. Enter Customer Information\n
+          2. Generate Customer data file\n
+          3. Report on total Sales (Not done in this part)\n
+          4. Check for fraud in sales data (Not done in this part)\n
+          9. Quit\n
+          Enter menu option (1-9)
+          ''')
+
+
+credit_card_number = ''
+postal_code = ''
+first = ''
+last = ''
+city = ''
+
+def enterCustomerInfo():
+    global first, last, city, credit_card_number, postal_code, valid_codes
+
+    first = input("What is your first name? ")
+    last = input("What is your last name? ")
+    city = input("What city do you live in? ")
+
+    postal_code = input("Enter your postal code: ").strip().upper()
+
+    while True: 
+        try:
+            credit_card_number = (input("Enter your credit card number: ")).strip()
+
+        except ValueError:
+            print("Error, please try again. ")
+        
+        break
+
+    
+
+valid_PC = ''
+
+def validatePostalCode():
+    global valid_PC
+    first_three = postal_code[:3] 
+    
+    try:
+        with open("postal_codes.csv", "r") as file:
+            csv_reader = csv.reader(file)
+
+            valid_codes = {row[0].split("|")[0].strip() for row in csv_reader}
+            if first_three in valid_codes:
+                valid_PC = True
+                print("Postal code status: VALID")
+            else:
+                print("Postal code status: INVALID")
+    
+    except ValueError:
+        print("Error 101")
+
+
+total = 0
+
+def validateCreditCard():
+    global total
+    oddsum = 0
+    evensum = 0
+    rcc_list = []
+    
+    reversed_creditcard_num = credit_card_number[::-1]
+    for i in reversed_creditcard_num:
+        rcc_list.append(i)
+    for i in range(len(rcc_list)):
+        rcc_list[i] = int(rcc_list[i])
+    
+    for i in range(len(rcc_list)):
+        if i % 2 == 1:
+            oddsum += rcc_list[i]
+        if i % 2 == 0:
+            doubled_even = rcc_list[i] * 2
+            if doubled_even > 9:
+                new_DE = doubled_even - 9
+                evensum += new_DE
+            else:
+                evensum += doubled_even
+    
+    total = evensum + oddsum
+    if total % 10 == 0:
+        print("Credit card is valid ")
+    else:
+        print("Credit card is invalid ")
+
+                
+            
+
+
+
+
+def generateCustomerDataFile():
+    file = open('customer_data_file.txt', 'a')
+
+    file.write(f"Name: {first} {last} \n")
+    file.write(f"City: {city} \n")
+    
+    if valid_PC:
+        file.write(f"Postal code: {postal_code} \n")
+    else:
+        file.write("Postal code: N/A \n")
+    
+    if total % 10 == 0:
+        file.write(f"Credit card: {credit_card_number} \n")
+    else:
+        file.write("Credit card: N/A \n")
+
+    file.write("\n")
+    
+    file.close()
+
+
+
+
+
+
+####################################################################
+#                            MAIN PROGRAM                          #
+####################################################################
+
+
+userInput = ""
+enterCustomerOption = "1"
+generateCustomerOption = "2"
+exitCondition = "9"
+
+
+
+while userInput != exitCondition:
+    printMenu()                 
+    userInput = input(); 
+
+    if userInput == enterCustomerOption:
+        enterCustomerInfo()
+        validatePostalCode()
+        validateCreditCard()
+
+    elif userInput == generateCustomerOption: 
+        generateCustomerDataFile()
+
+    else:
+        print("Please type in a valid option (A number from 1-9)")
+
+ 
+print("Program Terminated")
